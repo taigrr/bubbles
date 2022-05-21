@@ -1,6 +1,8 @@
 module github.com/charmbracelet/bubbles
 
-go 1.13
+go 1.18
+
+replace github.com/charmbracelet/lipgloss => ../lipgloss
 
 require (
 	github.com/atotto/clipboard v0.1.4

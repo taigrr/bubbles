@@ -55,6 +55,12 @@ type Model struct {
 	Ellipsis string
 
 	Styles Styles
+	df     lipgloss.DoeFoot
+}
+
+func (m Model) UpdateDoeFoot(df lipgloss.DoeFoot) Model {
+	m.df = df
+	return m
 }
 
 // New creates a new help view with some useful defaults.
@@ -87,6 +93,7 @@ func New() Model {
 			FullDesc:       descStyle.Copy(),
 			FullSeparator:  sepStyle.Copy(),
 		},
+		df: lipgloss.NewDoeFoot(),
 	}
 }
 
@@ -118,7 +125,7 @@ func (m Model) ShortHelpView(bindings []key.Binding) string {
 
 	var b strings.Builder
 	var totalWidth int
-	var separator = m.Styles.ShortSeparator.Inline(true).Render(m.ShortSeparator)
+	var separator = m.Styles.ShortSeparator.Inline(true).RenderForDoeFoot(m.ShortSeparator, m.df)
 
 	for i, kb := range bindings {
 		if !kb.Enabled() {
@@ -131,8 +138,8 @@ func (m Model) ShortHelpView(bindings []key.Binding) string {
 		}
 
 		str := sep +
-			m.Styles.ShortKey.Inline(true).Render(kb.Help().Key) + " " +
-			m.Styles.ShortDesc.Inline(true).Render(kb.Help().Desc)
+			m.Styles.ShortKey.Inline(true).RenderForDoeFoot(kb.Help().Key, m.df) + " " +
+			m.Styles.ShortDesc.Inline(true).RenderForDoeFoot(kb.Help().Desc, m.df)
 
 		w := lipgloss.Width(str)
 
@@ -140,7 +147,7 @@ func (m Model) ShortHelpView(bindings []key.Binding) string {
 		// drawing.
 		if m.Width > 0 && totalWidth+w > m.Width {
 			// Although if there's room for an ellipsis, print that.
-			tail := " " + m.Styles.Ellipsis.Inline(true).Render(m.Ellipsis)
+			tail := " " + m.Styles.Ellipsis.Inline(true).RenderForDoeFoot(m.Ellipsis, m.df)
 			tailWidth := lipgloss.Width(tail)
 
 			if totalWidth+tailWidth < m.Width {
@@ -171,7 +178,7 @@ func (m Model) FullHelpView(groups [][]key.Binding) string {
 		out []string
 
 		totalWidth int
-		sep        = m.Styles.FullSeparator.Render(m.FullSeparator)
+		sep        = m.Styles.FullSeparator.RenderForDoeFoot(m.FullSeparator, m.df)
 		sepWidth   = lipgloss.Width(sep)
 	)
 
@@ -196,9 +203,9 @@ func (m Model) FullHelpView(groups [][]key.Binding) string {
 		}
 
 		col := lipgloss.JoinHorizontal(lipgloss.Top,
-			m.Styles.FullKey.Render(strings.Join(keys, "\n")),
-			m.Styles.FullKey.Render(" "),
-			m.Styles.FullDesc.Render(strings.Join(descriptions, "\n")),
+			m.Styles.FullKey.RenderForDoeFoot(strings.Join(keys, "\n"), m.df),
+			m.Styles.FullKey.RenderForDoeFoot(" ", m.df),
+			m.Styles.FullDesc.RenderForDoeFoot(strings.Join(descriptions, "\n"), m.df),
 		)
 
 		// Column
